@@ -1,9 +1,3 @@
-//
-//  ViewController.swift
-//  Calculator2027
-//
-//  Created by  User on 14.10.2026.
-//
 
 import UIKit
 
@@ -12,8 +6,28 @@ class CalcvulatorController: UIViewController {
     @IBOutlet weak var display: UITextField!
     var isTyping = false
     
+    //MARK: Bien tinh toan trung gian giua phuong thuc functionProcessing va MH display
+    var displayValue: Double? {
+        get {
+            if let strNumber = display.text, let number = Double(strNumber) {
+                return number
+            } else {
+                return nil
+            }
+        }
+        set {
+            let pn = newValue!.soChuSoPhanNguyen()
+            let ptp = newValue!.soChuSoPhanThapPhan()
+            if pn + ptp <= 12 { // Khong can lam tron
+                display.text = String(newValue!)
+            } else {
+                display.text = String(format: "%.\(12-pn)f", newValue!)
+            }
+        }
+    }
     
     override func viewDidLoad() {
+        super.viewDidLoad()
         // Thay doi thuoc tinh cho button
         //btnDigit.layer.cornerRadius = 10
         //btnDigit.clipsToBounds = true
@@ -38,9 +52,40 @@ class CalcvulatorController: UIViewController {
     
     //MARK: Ham xu ly chuc nang
     @IBAction func functionProcessing(_ sender: UIButton) {
-        display.text = String(Double.pi)
+        // Xu ly cac truong hop tinh toan
+        let functionSymbol = sender.titleLabel!.text!
+        switch functionSymbol {
+        case "e":
+            displayValue = M_E
+        case "π":
+            displayValue = Double.pi
+        case "√":
+            if let number = displayValue {
+                displayValue = sqrt(number)
+            }
+        case "cos":
+            if let number = displayValue {
+                displayValue = cos(number)
+            }
+        case "±":
+            if let number = displayValue {
+                displayValue = sign(number)
+            }
+        default:
+            break
+        }
+        
         // Xoa trang thai phim so
         isTyping = false
     }
 }
 
+extension Double {
+    func soChuSoPhanNguyen() -> Int {
+        return String(self).split(separator: ".")[0].count
+    }
+    
+    func soChuSoPhanThapPhan() -> Int {
+        return String(self).split(separator: ".")[1].count
+    }
+}
